@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Google.Cloud.Firestore;
-using ComplianceMonitoringAPI.Models;
+using AlphaX.Models;
 
-namespace ComplianceMonitoringAPI.Services
+namespace AlphaX.Services
 {
     public class FirebaseService
     {
         private readonly FirestoreDb _db;
-        private const string AGENTS_COLLECTION = "agents";
+        private const string ENDPOINT_COLLECTION = "endpoint";
         private const string SCANS_COLLECTION = "scans";
         private const string ORGANIZATIONS_COLLECTION = "organizations";
 
@@ -19,49 +19,49 @@ namespace ComplianceMonitoringAPI.Services
         }
 
         // Agent Operations
-        public async Task<Agent> RegisterAgentAsync(string organizationId, Agent agent)
+        public async Task<Models.Endpoint> RegisterAgentAsync(string organizationId, Models.Endpoint endpoint)
         {
-            agent.OrganizationId = organizationId;
+            endpoint.OrganizationId = organizationId;
             var docRef = _db.Collection(ORGANIZATIONS_COLLECTION)
                 .Document(organizationId)
-                .Collection(AGENTS_COLLECTION)
-                .Document(agent.AgentId);
+                .Collection(ENDPOINT_COLLECTION)
+                .Document(endpoint.EndpointId);
 
-            await docRef.SetAsync(agent);
-            return agent;
+            await docRef.SetAsync(endpoint);
+            return endpoint;
         }
 
-        public async Task<Agent> GetAgentAsync(string organizationId, string agentId)
+        public async Task<Models.Endpoint> GetAgentAsync(string organizationId, string endpoint)
         {
             var doc = await _db.Collection(ORGANIZATIONS_COLLECTION)
                 .Document(organizationId)
-                .Collection(AGENTS_COLLECTION)
-                .Document(agentId)
+                .Collection(ENDPOINT_COLLECTION)
+                .Document(endpoint)
                 .GetSnapshotAsync();
 
-            return doc.Exists ? doc.ConvertTo<Agent>() : null;
+            return doc.Exists ? doc.ConvertTo<Models.Endpoint>() : null;
         }
 
-        public async Task<List<Agent>> GetAgentsByOrganizationAsync(string organizationId)
+        public async Task<List<Models.Endpoint>> GetEndpointsByOrganizationAsync(string organizationId)
         {
             var query = await _db.Collection(ORGANIZATIONS_COLLECTION)
                 .Document(organizationId)
-                .Collection(AGENTS_COLLECTION)
+                .Collection(ENDPOINT_COLLECTION)
                 .GetSnapshotAsync();
 
-            var agents = new List<Agent>();
+            var endpoints = new List<Models.Endpoint>();
             foreach (var doc in query.Documents)
             {
-                agents.Add(doc.ConvertTo<Agent>());
+                endpoints.Add(doc.ConvertTo<Models.Endpoint>());
             }
-            return agents;
+            return endpoints;
         }
 
         public async Task UpdateAgentHeartbeatAsync(string organizationId, string agentId)
         {
             await _db.Collection(ORGANIZATIONS_COLLECTION)
                 .Document(organizationId)
-                .Collection(AGENTS_COLLECTION)
+                .Collection(ENDPOINT_COLLECTION)
                 .Document(agentId)
                 .UpdateAsync(new Dictionary<string, object>
                 {
@@ -93,7 +93,7 @@ namespace ComplianceMonitoringAPI.Services
             return doc.Exists ? doc.ConvertTo<ScanResult>() : null;
         }
 
-        public async Task<List<ScanResult>> GetAgentScanHistoryAsync(string organizationId, string agentId, int limit = 10)
+        public async Task<List<ScanResult>> GetEndpointScanHistoryAsync(string organizationId, string agentId, int limit = 10)
         {
             var query = await _db.Collection(ORGANIZATIONS_COLLECTION)
                 .Document(organizationId)

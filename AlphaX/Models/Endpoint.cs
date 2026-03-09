@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace ComplianceMonitoringAPI.Models
+namespace AlphaX.Models
 {
-    public class Agent
+    public class Endpoint
     {
-        public string AgentId { get; set; } = Guid.NewGuid().ToString();
+        public string EndpointId { get; set; } = Guid.NewGuid().ToString();
         public string OrganizationId { get; set; }
-        public string AgentName { get; set; }
-        public string OperatingSystem { get; set; } // Windows, Linux, macOS
         public string Hostname { get; set; }
+        public string OperatingSystem { get; set; } // Windows, Linux, macOS
         public string IpAddress { get; set; }
         public string AgentVersion { get; set; }
         public DateTime RegisteredDate { get; set; } = DateTime.UtcNow;

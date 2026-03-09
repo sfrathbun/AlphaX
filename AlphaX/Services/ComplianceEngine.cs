@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using ComplianceMonitoringAPI.Models;
+using AlphaX.Models;
 
-namespace ComplianceMonitoringAPI.Services
+namespace AlphaX.Services
 {
     public class ComplianceEngine
     {

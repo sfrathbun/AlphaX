@@ -45,7 +45,7 @@ namespace AgentX.Models
 
     public class ScanDataDto
     {
-        public string AgentId { get; set; }
+        public string EndpointId { get; set; }
         public DateTime ScanStartTime { get; set; }
         public DateTime ScanEndTime { get; set; }
         public EndpointData EndpointInfo { get; set; }

@@ -1,10 +1,12 @@
-using Google.Cloud.Firestore;
-using ComplianceMonitoringAPI.Services;
+﻿using Google.Cloud.Firestore;
+using AlphaX.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services
-builder.Services.AddControllers();
+builder.Services
+    .AddControllers()
+    .AddNewtonsoftJson();  // ← Add this line
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -47,4 +49,4 @@ app.MapControllers();
 app.MapGet("/", () => "API Running")
     .WithName("Root");
 
-app.Run("https://localhost:7003");  // Change from 7001 to 7003
+app.Run("https://localhost:7003");

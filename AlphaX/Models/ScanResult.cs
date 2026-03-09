@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace ComplianceMonitoringAPI.Models
+namespace AlphaX.Models
 {
     public class ScanResult
     {
         public string ScanId { get; set; } = Guid.NewGuid().ToString();
-        public string AgentId { get; set; }
+        public string EndpointId { get; set; }
         public string OrganizationId { get; set; }
         public DateTime ScanStartTime { get; set; }
         public DateTime ScanEndTime { get; set; }
