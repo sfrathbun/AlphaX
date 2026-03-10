@@ -3,10 +3,12 @@ using AlphaX.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddScoped<ScanDataService>();
+
 // Add services
 builder.Services
     .AddControllers()
-    .AddNewtonsoftJson();  // ← Add this line
+    .AddNewtonsoftJson();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
