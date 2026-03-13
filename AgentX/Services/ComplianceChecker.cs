@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Management;
 using System.Linq;
+using System.Text.Json;
 using AgentX.Models;
 
 namespace AgentX.Services
@@ -46,11 +47,11 @@ namespace AgentX.Services
                                 Severity = "High",
                                 Description = "Windows Firewall must be enabled for endpoint protection",
                                 Remediation = "Enable Windows Defender Firewall in Windows Security settings",
-                                Details = new Dictionary<string, object>
+                                Details = JsonSerializer.Serialize(new Dictionary<string, object>
                                 {
                                     { "FirewallName", obj["displayName"]?.ToString() ?? "Unknown" },
                                     { "State", productState }
-                                }
+                                })
                             });
                         }
                     }
@@ -65,7 +66,7 @@ namespace AgentX.Services
                             Severity = "High",
                             Description = "Windows Firewall must be enabled for endpoint protection",
                             Remediation = "Enable Windows Defender Firewall in Windows Security settings",
-                            Details = new Dictionary<string, object> { { "Status", "No firewall detected" } }
+                            Details = JsonSerializer.Serialize(new Dictionary<string, object> { { "Status", "No firewall detected" } })
                         });
                     }
                 }
@@ -81,7 +82,7 @@ namespace AgentX.Services
                     Severity = "Medium",
                     Description = "Could not verify firewall status",
                     Remediation = "Check firewall settings manually",
-                    Details = new Dictionary<string, object> { { "Error", ex.Message } }
+                    Details = JsonSerializer.Serialize(new Dictionary<string, object> { { "Error", ex.Message } })
                 });
             }
 
@@ -114,11 +115,11 @@ namespace AgentX.Services
                                 Severity = "Critical",
                                 Description = "Antivirus software must be active and up-to-date",
                                 Remediation = "Enable antivirus protection and ensure definitions are current",
-                                Details = new Dictionary<string, object>
+                                Details = JsonSerializer.Serialize(new Dictionary<string, object>
                                 {
                                     { "AntivirusName", obj["displayName"]?.ToString() ?? "Unknown" },
                                     { "State", productState }
-                                }
+                                })
                             });
                         }
                     }
@@ -133,7 +134,7 @@ namespace AgentX.Services
                             Severity = "Critical",
                             Description = "Antivirus software must be active and up-to-date",
                             Remediation = "Install and enable antivirus protection",
-                            Details = new Dictionary<string, object> { { "Status", "No antivirus detected" } }
+                            Details = JsonSerializer.Serialize(new Dictionary<string, object> { { "Status", "No antivirus detected" } })
                         });
                     }
                 }
@@ -149,7 +150,7 @@ namespace AgentX.Services
                     Severity = "High",
                     Description = "Could not verify antivirus status",
                     Remediation = "Check antivirus settings manually",
-                    Details = new Dictionary<string, object> { { "Error", ex.Message } }
+                    Details = JsonSerializer.Serialize(new Dictionary<string, object> { { "Error", ex.Message } })
                 });
             }
 
@@ -176,11 +177,11 @@ namespace AgentX.Services
                         Severity = updatesPending ? "High" : "Low",
                         Description = "System must have current Windows security updates installed",
                         Remediation = "Install pending Windows updates and restart if required",
-                        Details = new Dictionary<string, object>
+                        Details = JsonSerializer.Serialize(new Dictionary<string, object>
                         {
                             { "UpdatesInstalled", results.Count },
                             { "RebootPending", updatesPending }
-                        }
+                        })
                     });
                 }
             }
@@ -195,7 +196,7 @@ namespace AgentX.Services
                     Severity = "Medium",
                     Description = "Could not verify Windows update status",
                     Remediation = "Check Windows Update settings manually",
-                    Details = new Dictionary<string, object> { { "Error", ex.Message } }
+                    Details = JsonSerializer.Serialize(new Dictionary<string, object> { { "Error", ex.Message } })
                 });
             }
 
@@ -241,12 +242,12 @@ namespace AgentX.Services
                                     Severity = "High",
                                     Description = $"{ruleName} for system security and updates",
                                     Remediation = $"Ensure {serviceName} is running and set to Auto start",
-                                    Details = new Dictionary<string, object>
+                                    Details = JsonSerializer.Serialize(new Dictionary<string, object>
                                     {
                                         { "ServiceName", serviceName },
                                         { "State", state },
                                         { "StartMode", startMode }
-                                    }
+                                    })
                                 });
                             }
                         }
@@ -264,7 +265,7 @@ namespace AgentX.Services
                     Severity = "Medium",
                     Description = "Could not verify all critical services",
                     Remediation = "Check services manually in Services.msc",
-                    Details = new Dictionary<string, object> { { "Error", ex.Message } }
+                    Details = JsonSerializer.Serialize(new Dictionary<string, object> { { "Error", ex.Message } })
                 });
             }
 

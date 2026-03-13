@@ -6,7 +6,7 @@ namespace AlphaX.Models
     public class Endpoint
     {
         public string EndpointId { get; set; } = Guid.NewGuid().ToString();
-        public string OrganizationId { get; set; }
+        public string? OrganizationId { get; set; }
         public string Hostname { get; set; }
         public string OperatingSystem { get; set; } // Windows, Linux, macOS
         public string IpAddress { get; set; }
@@ -15,6 +15,9 @@ namespace AlphaX.Models
         public DateTime LastHeartbeat { get; set; } = DateTime.UtcNow;
         public bool IsActive { get; set; } = true;
         public string Status { get; set; } = "Active"; // Active, Inactive, Error
-        public Dictionary<string, string> Metadata { get; set; } = new();
+        public string? Metadata { get; set; } // JSON stored as string (JSONB in PostgreSQL)
+
+        // Navigation properties
+        public ICollection<ScanResult> ScanResults { get; set; } = new List<ScanResult>();
     }
 }

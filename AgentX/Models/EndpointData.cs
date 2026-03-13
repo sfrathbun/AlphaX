@@ -40,7 +40,9 @@ namespace AgentX.Models
         public string Severity { get; set; } // Critical, High, Medium, Low
         public string Description { get; set; }
         public string Remediation { get; set; }
-        public Dictionary<string, object> Details { get; set; } = new();
+        public string Details { get; set; }
+        public string ScanId { get; set; }  // Add this
+        public string EndpointId { get; set; }  // Add this
     }
 
     public class ScanDataDto

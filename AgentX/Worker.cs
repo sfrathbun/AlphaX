@@ -180,12 +180,20 @@ namespace AgentX
             try
             {
                 var scanStartTime = DateTime.UtcNow;
+                var scanId = Guid.NewGuid().ToString();
 
                 // Collect endpoint data
                 var systemInfo = _systemCollector.CollectSystemInfo();
 
                 // Run compliance checks
                 var findings = _complianceChecker.RunComplianceChecks();
+
+                // Populate ScanId and EndpointId in findings
+                foreach (var finding in findings)
+                {
+                    finding.ScanId = scanId;
+                    finding.EndpointId = _endpointId;
+                }
 
                 var scanEndTime = DateTime.UtcNow;
 
@@ -199,7 +207,7 @@ namespace AgentX
                     Findings = findings
                 };
 
-                _logger.LogInformation("📤 Submitting scan with EndpointId: {EndpointId}", _endpointId);
+                _logger.LogInformation("📤 Submitting scan with EndpointId: {EndpointId}, ScanId: {ScanId}", _endpointId, scanId);
 
                 // Submit to API
                 var success = await _apiClient.SubmitScanAsync(scanData);

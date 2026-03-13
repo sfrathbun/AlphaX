@@ -1,9 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Google.Cloud.Firestore;
 using AlphaX.DTOs;
+using AlphaX.Data;
+using AlphaX.Models;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using System.Net.Mail;
 
 namespace AlphaX.Controllers
 {
@@ -11,12 +14,12 @@ namespace AlphaX.Controllers
     [Route("api/endpoints")]
     public class EndpointController : ControllerBase
     {
-        private readonly FirestoreDb _firestoreDb;
+        private readonly AlphaXContext _dbContext;
         private readonly ILogger<EndpointController> _logger;
 
-        public EndpointController(FirestoreDb firestoreDb, ILogger<EndpointController> logger)
+        public EndpointController(AlphaXContext dbContext, ILogger<EndpointController> logger)
         {
-            _firestoreDb = firestoreDb;
+            _dbContext = dbContext;
             _logger = logger;
         }
 
@@ -28,38 +31,42 @@ namespace AlphaX.Controllers
                 _logger.LogInformation("Endpoint registration request from {Hostname}", endpointData.Hostname);
 
                 var endpointId = Guid.NewGuid().ToString();
+                var organizationId = "default"; // or get from request header/config
 
-                // Create endpoint document
-                var endpointDoc = new
+                var endpoint = new Models.Endpoint
                 {
                     EndpointId = endpointId,
-                    AgentName = endpointData.AgentName,
+                    OrganizationId = organizationId,
                     OperatingSystem = endpointData.OperatingSystem,
                     Hostname = endpointData.Hostname,
                     IpAddress = endpointData.IpAddress,
                     AgentVersion = endpointData.AgentVersion,
-                    RegistrationTime = DateTime.UtcNow,
+                    RegisteredDate = DateTime.UtcNow,
                     LastHeartbeat = DateTime.UtcNow,
-                    Status = "Active"
+                    Status = "Active",
+                    IsActive = true
                 };
 
-                await _firestoreDb.Collection("endpoints").Document(endpointId).SetAsync(endpointDoc);
+                _dbContext.Endpoints.Add(endpoint);
+                await _dbContext.SaveChangesAsync();
 
                 // Store MAC addresses
                 if (endpointData.MacAddresses != null && endpointData.MacAddresses.Count > 0)
                 {
                     foreach (var mac in endpointData.MacAddresses)
                     {
-                        var macDoc = new
+                        var macRecord = new MacAddress
                         {
-                            MacAddress = mac,
+                            MacAddressId = Guid.NewGuid().ToString(),
+                            Address = mac,
                             EndpointId = endpointId,
                             FirstSeen = DateTime.UtcNow,
                             LastSeen = DateTime.UtcNow
                         };
 
-                        await _firestoreDb.Collection("macs").Document(mac).SetAsync(macDoc);
+                        _dbContext.MacAddresses.Add(macRecord);
                     }
+                    await _dbContext.SaveChangesAsync();
                 }
 
                 _logger.LogInformation("Endpoint registered with ID: {EndpointId}, MACs: {MacCount}", endpointId, endpointData.MacAddresses?.Count ?? 0);
@@ -80,18 +87,20 @@ namespace AlphaX.Controllers
             {
                 _logger.LogInformation("MAC lookup request for: {MacAddress}", request.MacAddress);
 
-                var doc = await _firestoreDb.Collection("macs").Document(request.MacAddress).GetSnapshotAsync();
+                var macRecord = await _dbContext.MacAddresses
+                    .FirstOrDefaultAsync(m => m.Address == request.MacAddress);
 
-                if (!doc.Exists)
+                if (macRecord == null)
                 {
                     return NotFound(new { message = "MAC address not found" });
                 }
 
-                var endpointId = doc.GetValue<string>("EndpointId");
+                var endpointId = macRecord.EndpointId;
 
                 // Update LastSeen
-                await _firestoreDb.Collection("macs").Document(request.MacAddress)
-                    .UpdateAsync("LastSeen", DateTime.UtcNow);
+                macRecord.LastSeen = DateTime.UtcNow;
+                _dbContext.MacAddresses.Update(macRecord);
+                await _dbContext.SaveChangesAsync();
 
                 return Ok(new { endpointId = endpointId, message = "Endpoint found" });
             }
@@ -109,8 +118,15 @@ namespace AlphaX.Controllers
             {
                 _logger.LogInformation("Heartbeat received from endpoint: {EndpointId}", endpointId);
 
-                var endpointRef = _firestoreDb.Collection("endpoints").Document(endpointId);
-                await endpointRef.UpdateAsync("LastHeartbeat", DateTime.UtcNow);
+                var endpoint = await _dbContext.Endpoints.FindAsync(endpointId);
+                if (endpoint == null)
+                {
+                    return NotFound();
+                }
+
+                endpoint.LastHeartbeat = DateTime.UtcNow;
+                _dbContext.Endpoints.Update(endpoint);
+                await _dbContext.SaveChangesAsync();
 
                 return Ok(new { message = "Heartbeat received" });
             }
@@ -126,13 +142,13 @@ namespace AlphaX.Controllers
         {
             try
             {
-                var doc = await _firestoreDb.Collection("endpoints").Document(endpointId).GetSnapshotAsync();
-                if (!doc.Exists)
+                var endpoint = await _dbContext.Endpoints.FindAsync(endpointId);
+                if (endpoint == null)
                 {
                     return NotFound();
                 }
 
-                return Ok(doc.ConvertTo<dynamic>());
+                return Ok(endpoint);
             }
             catch (Exception ex)
             {
