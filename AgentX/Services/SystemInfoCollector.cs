@@ -28,6 +28,7 @@ namespace AgentX.Services
                 OperatingSystem = GetOperatingSystem(),
                 OSVersion = GetOSVersion(),
                 OSBuildNumber = GetOSBuildNumber(),
+                CurrentUser = GetCurrentUser(),
                 NetworkInterfaces = GetNetworkInterfaces(),
                 ProcessorInfo = GetProcessorInfo(),
                 TotalMemory = GetTotalMemory(),
@@ -131,6 +132,19 @@ namespace AgentX.Services
             }
 
             return "Unknown";
+        }
+
+        private string GetCurrentUser()
+        {
+            try
+            {
+                return Environment.UserName;
+            }
+            catch (Exception ex)
+            {
+                LogError("Error getting hostname", ex);
+                return "Unknown";
+            }
         }
 
         private List<NetworkInterface> GetNetworkInterfaces()

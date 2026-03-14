@@ -30,7 +30,7 @@ namespace AlphaX.Services
             try
             {
                 // 1. Store ScanResult first (this is what EndpointInfo references)
-                var scanResult = new ScanResult
+                ScanResult scanResult = new()
                 {
                     ScanId = scanId,
                     EndpointId = scanData.EndpointId,
@@ -115,6 +115,7 @@ namespace AlphaX.Services
                     OperatingSystem = info.OperatingSystem ?? "Unknown",
                     OSVersion = info.OSVersion ?? "Unknown",
                     OSBuildNumber = info.OSBuildNumber ?? "Unknown",
+                    CurrentUser = info.CurrentUser ?? "Unknown",
                     ProcessorInfo = info.ProcessorInfo ?? "Unknown",
                     TotalMemory = info.TotalMemory ?? 0,
                     LastBootTime = info.LastBootTime ?? "Unknown",

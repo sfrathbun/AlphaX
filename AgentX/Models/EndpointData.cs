@@ -9,6 +9,7 @@ namespace AgentX.Models
         public string OperatingSystem { get; set; }
         public string OSVersion { get; set; }
         public string OSBuildNumber { get; set; }
+        public string CurrentUser { get; set; }
         public List<NetworkInterface> NetworkInterfaces { get; set; } = new();
         public string ProcessorInfo { get; set; }
         public long TotalMemory { get; set; }

@@ -3,6 +3,7 @@ using System;
 using AlphaX.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AlphaX.Migrations
 {
     [DbContext(typeof(AlphaXContext))]
-    partial class AlphaXContextModelSnapshot : ModelSnapshot
+    [Migration("20260314012148_AddCurrentUserToEndpointTable")]
+    partial class AddCurrentUserToEndpointTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
